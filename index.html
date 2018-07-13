@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html  lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <script src="js/jquery.min.js"></script>
+        <script src="js/nebPay.js"></script>
+        <script src="js/base64.js"></script>
+    </head>
+    <body>
+        <p>基于ipfs的博客系统（只支持导入html格式的文章）</p>
+        <br/>
+        <input type="file" id="upfile" accept="text/html" />
+        <br/><br/>
+        <button id="upload">导入文章</button>
+        <textarea  id="upRes" cols=80 disabled=true rows=3 offsetHeight&scrollHeight >显示结果</textarea>
+        <div class="noExtensionClass" style="display:none" id="noExtension">
+                请安装 
+                <a target="_blank" href="https://github.com/ChengOrangeJu/WebExtensionWallet">WebExtensionWallet</a> 
+                激活Dapp的功能 
+        </div>  
+
+        <script>
+            if(typeof(webExtensionWallet) === "undefined"){
+                $(".noExtensionClass").show();
+            }
+            var NebPay = require("nebpay");     
+            var nebPay = new NebPay();
+            var dappAddress = "n1xYCAmWsnmaBKWekD71zwUscRMBZt5jmna";
+             //上传文章hash到星云链
+            function savefileinfo(response){
+                var resjson=JSON.parse(response);
+                var base = new Base64(); 
+                var encodename = base.encode(resjson.Name);
+                
+                var to = dappAddress;
+                var value = "0";
+                var callFunction = "submit";
+                var callArgs = "[\"" + encodename + "\",\"" + resjson.Hash + "\"]";
+                nebPay.call(to, value, callFunction, callArgs, {    
+                    listener: cbPush
+                });
+                
+            }
+            function cbPush(resp) {
+                console.log("response of push: " + resp)
+            }
+            //上传文章的处理函数
+            document.querySelector('#upload').onclick = function() {
+                if (document.getElementById("upfile").files[0]==null){
+                    alert("请先选择一篇文章")
+                    return
+                }
+
+                var formdata=new FormData();
+                var upfiles=document.getElementById("upfile").files;
+                formdata.append( "file", upfiles[0] ,upfiles[0].name);
+                var xmlhttp;
+                if(window.XMLHttpRequest){
+                    xmlhttp=new XMLHttpRequest();
+                }else{
+                    xmlhttp= new ActiveXObject("Microsoft.XMLHTTP");
+                }
+                xmlhttp.onreadystatechange=function(){
+                    if(xmlhttp.readyState==4 && xmlhttp.status==200){
+                        document.getElementById("upRes").value=xmlhttp.responseText;
+                        savefileinfo(xmlhttp.responseText);
+                    }
+                    else{
+                        document.getElementById("upRes").value="正在上传";
+                    }
+                }
+                xmlhttp.open("POST","http://66.42.54.83:5001/api/v0/add",true);
+                xmlhttp.send(formdata);
+            };
+            
+        </script>
+    </body>
+</html>
