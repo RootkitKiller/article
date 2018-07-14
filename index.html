@@ -20,7 +20,9 @@
                 <a target="_blank" href="https://github.com/ChengOrangeJu/WebExtensionWallet">WebExtensionWallet</a> 
                 激活Dapp的功能 
         </div>  
-
+        <div id = "articlelist">
+            
+        </div>
         <script>
             if(typeof(webExtensionWallet) === "undefined"){
                 $(".noExtensionClass").show();
@@ -28,7 +30,32 @@
             var NebPay = require("nebpay");     
             var nebPay = new NebPay();
             var dappAddress = "n1xYCAmWsnmaBKWekD71zwUscRMBZt5jmna";
-             //上传文章hash到星云链
+            //读取星云链数据库中的文章信息
+            nebPay.simulateCall(dappAddress,"0","getArticle","[]",{
+                listener: cbResult
+            });
+            function cbResult(resp){
+                var result = resp.result;
+                if (result === 'null'){
+                    return 
+                } else{
+                    result = JSON.parse(result);
+                    var articlenum=result.length;
+                    var base = new Base64();
+                    var InnerHtml;
+                    for (var i = 0; i < articlenum; i++) {
+                        var title=base.decode(result[i].title);
+                        var addr="http://66.42.54.83:8080/ipfs/"+result[i].contenthash;
+                        var author="作者："+result[i].account;
+                        console.log(title);
+                        console.log(addr);
+                        console.log(author);
+                        InnerHtml="<br /><p>"+title+"</p><p>"+addr+"</p><p>"+author+"</p><br/>";
+                    }
+                    document.getElementById("articlelist").innerHTML(InnerHtml);
+                }
+            }
+            //上传文章hash到星云链
             function savefileinfo(response){
                 var resjson=JSON.parse(response);
                 var base = new Base64(); 
