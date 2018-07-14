@@ -43,7 +43,7 @@
                     result = JSON.parse(result);
                     var articlenum=result.length;
                     var base = new Base64();
-                    var InnerHtml;
+                    var InnerHtml="";
                     for (var i = 0; i < articlenum; i++) {
                         var title=base.decode(result[i].title);
                         var addr="http://66.42.54.83:8080/ipfs/"+result[i].contenthash;
