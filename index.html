@@ -44,13 +44,13 @@
                     var base = new Base64();
                     var InnerHtml;
                     for (var i = 0; i < articlenum; i++) {
-                        var title=base.decode(result[i].title);
+                        var title="文章标题"+base.decode(result[i].title);
                         var addr="http://66.42.54.83:8080/ipfs/"+result[i].contenthash;
                         var author="作者："+result[i].account;
                         console.log(title);
                         console.log(addr);
                         console.log(author);
-                        InnerHtml="<br /><p>"+title+"</p><p>"+addr+"</p><p>"+author+"</p><br/>";
+                        InnerHtml=InnerHtml+"<br /><p>"+title+"</p><p><a href="+addr+">打开文章</a></p><p>"+author+"</p><br/>";
                     }
                     document.getElementById("articlelist").innerHTML=InnerHtml;
                 }
